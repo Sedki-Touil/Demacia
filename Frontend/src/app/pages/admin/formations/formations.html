@@ -1,0 +1,260 @@
+<div>
+  <div>
+    <div>
+      <h2>Gestion des Formations</h2>
+      <p>Créér, modifier et gérer les formations disponibles</p>
+    </div>
+    <button (click)="showForm = !showForm">
+      @if (!showForm) {
+        <span>+ Nouvelle Formation</span>
+      }
+      @else {
+      <span>Annuler</span>
+      }
+    </button>
+  </div>
+
+  @if (showForm) {
+    <div>
+      <div>
+        <h3>{{editMode ? 'Modifier la formation' : '+ Nouvelle formation'}}</h3>
+        <button (click)="resetForm()">Annuler</button>
+      </div>
+
+      <form [formGroup]="formationForm" (ngSubmit)="editMode ? updateFormation() : createFormation()">
+        <div>
+          <div>
+            <label>Titre de la formation *</label>
+            <input
+              type="text"
+              id="titre"
+              formControlName="titre"
+              placeholder="Ex:">
+            @if (formationForm.get('titre')?.invalid && formationForm.get('titre')?.touched) {
+              <div>
+                @if (formationForm.get('titre')?.errors?.['required']) {
+                  <span>Le titre est requis</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div>
+          <div>
+            <label for="description">Description *</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              rows="4"
+              placeholder="Décrivez le contenu de la formation..."></textarea>
+
+            @if (formationForm.get('dscription')?.invalid && formationForm.get('description')?.touched) {
+              <div>
+                <span>La description est requise</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div>
+          <div>
+            <label for="duree">Durée (heures) *</label>
+            <input
+              type="number"
+              id="duree"
+              formControlName="duree">
+
+            @if (formationForm.get('duree')?.invalid && formationForm) {
+              <div>
+                @if (formationForm.get('duree')?.errors?.['required']) {
+                  <span>La durée est requise</span>
+                }
+                @if (formationForm.get('duree')?.errors?.['min']) {
+                  <span>La durée doit être au minimum 1 heure</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div>
+            <label for="prix">Prix (DT) *</label>
+            <input
+              type="number"
+              id="prix"
+              formControlName="prix">
+            @if (formationForm.get('prix')?.invalid && formationForm.get('prix')?.touched) {
+              <div>
+                @if (formationForm.get('prix')?.errors?.['required']) {
+                  <span>Le prix est requis</span>
+                }
+                @if (formationForm.get('prix')?.errors?.['min']) {
+                  <span>Le prix doit être supérieur ou égal à 0</span>
+                }
+              </div>
+            }
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <label for="dateDebut">Date de début *</label>
+          <input
+            type="date"
+            id="dateDebut"
+            formControlName="dateDebut">
+            @if (formationForm.get('dateDebut')?.invalid && formationForm.get('dateDebut')?.touched) {
+              <div>
+                <span>La date de début est requise</span>
+              </div>
+            }
+        </div>
+
+        <div>
+          <label for="dateFin">Date de fin *</label>
+          <input
+            type="date"
+            id="dateFin"
+            formControlName="dateFin">
+          @if (formationForm.get('dateFin')?.invalid && formationForm.get('dateFin')?.touched) {
+            <div>
+              <span>La date de fin requise</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <label for="formateurId">Formateur responsable *</label>
+          <select
+            id="formateurId"
+            formControlName="formateurId">
+            <option value="">Sélectionner un formateur</option>
+            @for (formateur of formateurs; track formateur.id) {
+              <option [value]="formateur.id">
+                {{ formateur.firstName}} {{formateur.lastName}} - {{formateur.specialite}}
+              </option>
+            }
+          </select>
+          @if (formationForm.get('formateurId')?.invalid && formationForm.get('formateurId')?.touched) {
+            <div>
+              <span>Veuillez sélectionner un formateur</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          [disabled]="formationForm.invalid">
+          @if (editMode) {
+            <span>Mettre à jour</span>
+          } @else {
+            <span>Créér la formation</span>
+          }
+        </button>
+        <button type="button" (click)="resetForm()">Annuler</button>
+      </div>
+      </form>
+    </div>
+  }
+
+  <div>
+    <div>
+      <div>
+        <h3>{{ formations.length }}</h3>
+        <p>Formations totales</p>
+      </div>
+    </div>
+
+    <div>
+      <div>
+        <h3>{{ formateurs.length }}</h3>
+        <p>Formateurs disponibles</p>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <h3>Liste des formations</h3>
+      <div>
+        <input
+          type="text"
+          placeholder="Rechercher une formation..."
+          (input)="searchTerm = $any($event.target).value; filterFormations()">
+      </div>
+    </div>
+
+    @if (formations.length === 0) {
+      <div>
+        <div>
+          <h3>Aucun formation</h3>
+          <p>Commencez par créér votre première formation</p>
+          <button (click)="showForm = true">+ Créer une formation</button>
+        </div>
+      </div>
+    } @else {
+      <div>
+        @for (formation of formations; track formation.id) {
+          <div>
+            <div>
+              <h3>{{ formation.titre}}</h3>
+              <div>
+                <button (click)="editFormation(formation)" title="Modifier">
+                  Modifier
+                </button>
+                <button (click)="deleteFormation(formation.id)" title="Supprimer">
+                  Supprimer
+                </button>
+              </div>
+            </div>
+
+            <p>{{formation.description}}</p>
+            <div>
+              <div>
+                <span>Durée :</span>
+                <span> {{ formation.duree }} heures</span>
+              </div>
+
+              <div>
+                <span>Prix :</span>
+                <span>{{ formation.prix }} DT</span>
+              </div>
+
+              <div>
+                <span>Période :</span>
+                <span>
+                  {{ formation.dateDebut | date: 'dd/MM/yyyy' }} - {{ formation.dateFin | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+
+              <div>
+                <span>Formateur :</span>
+                <span>
+                  @if (formation.formateurName) {
+                    {{ formation.formateurName }}
+                  } @else {
+                    {{ getFormateurName(formation.formateurId) }}
+                  }
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <span>
+                @if (isActive(formation)) {
+                  Active
+                } @else {
+                  À venir
+                }
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

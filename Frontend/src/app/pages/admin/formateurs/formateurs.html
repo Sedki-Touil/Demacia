@@ -1,0 +1,103 @@
+<div>
+  <div>
+    <h2>Gestion des Formateurs</h2>
+    <button (click)="showForm = !showForm">
+      {{showForm ? 'Annuler' : '+ Nouveau Formateur'}}
+    </button>
+  </div>
+
+  @if (showForm) {
+    <div>
+      <h3>{{editMode ? 'Modifier le formateur' : 'Nouveau formateur'}}</h3>
+      <form [formGroup] ="formateurForm" (ngSubmit) = "editMode ? updateFormateur() : createFormateur()" >
+        <div>
+          <label>Email *</label>
+          <input type="email" formControlName = "email">
+          @if (formateurForm.get('email')?.invalid && formateurForm.get('email')?.touched) {
+            <div>
+              Email valid requis
+            </div>
+          }
+
+        <div>
+          <div>
+            <label>Prénom *</label>
+            <input type="text" formControlName="firstName">
+          </div>
+
+          <div>
+            <label>Nom *</label>
+            <input type="text" formControlName="lastName">
+          </div>
+        </div>
+
+        <div>
+          <label>Téléphone</label>
+          <input type="tel" formControlName="phone">
+        </div>
+
+        <div>
+          <label>Spécialité *</label>
+          <input type="text" formControlName="specialite">
+        </div>
+
+        <div>
+          <label>Mot de passe {{editMode ? '(laisser vide pour ne pas modifier)' : '*'}}</label>
+          <input type="password" formControlName="password">
+          @if (!editMode && formateurForm.get('password')?.invalid && formateurForm.get('password')?.touched) {
+            <div>
+              Minimum 6 caractères
+            </div>
+          }
+        </div>
+
+        <div>
+          <button type="submit" disabled = "formateurForm.invalid">
+            {{ editMode ? 'Mettre à jour' : 'Créer'}}
+          </button>
+          <button type="button" (click)="resetForm()">Annuler</button>
+        </div>
+        </div>
+      </form>
+    </div>
+
+  }
+
+  <div>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom complet</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Spécialité</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (formateur of formateurs; track formateur.id) {
+            <tr>
+              <td>{{ formateur.id}}</td>
+              <td>{{formateur.firstName}} {{formateur.lastName}}</td>
+              <td>{{ formateur.email }}</td>
+              <td>{{ formateur.phone }}</td>
+              <td>{{formateur.specialite}}</td>
+              <td>
+                <button (click)="editFormateur(formateur)">edit</button>
+                <button (click)="deleteFormateur(formateur)">delete</button>
+              </td>
+            </tr>
+          }
+
+          @if (formateurs.length === 0) {
+            <tr>
+              <td colspan="6">Aucun formateur trouvé</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

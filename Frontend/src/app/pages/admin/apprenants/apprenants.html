@@ -1,0 +1,98 @@
+<div>
+  <div>
+    <div>
+      <h2>Gestion des Apprenants</h2>
+      <p>Liste des apprenants inscrits sur la plateforme</p>
+    </div>
+
+    <div>
+      <span>Total: {{ apprenants.length }}</span>
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <div>
+        <h3>{{ apprenants.length }}</h3>
+        <p>Apprenants inscrits</p>
+      </div>
+    </div>
+
+    <div>
+      <div>
+        <h3>{{ getActiveCount() }}</h3>
+        <p>Apprenants actifs</p>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <h3>Liste des apprenants</h3>
+      <div>
+        <input
+          type="text"
+          placeholder="Rechercher par nom ou email ..."
+          #searchInput
+          (input)="searchTerm = searchInput.value; filterApprenants()">
+      </div>
+    </div>
+
+    @if (apprenants.length === 0) {
+      <div>
+        <div>
+          <h3>Aucun apprenant</h3>
+          <p>Aucun apprenant n'est pas encore inscrit sur la plateforme</p>
+        </div>
+      </div>
+    } @else {
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom complet</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Date d'inscription</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (apprenant of apprenants ; track apprenant.id){
+              <tr>
+                <td>#{{ apprenant.id }}</td>
+                <td>
+                  <div>
+                    {{getInitials((apprenant.firstName), apprenant.lastName)}}
+                  </div>
+
+                  <span>{{ apprenant.firstName }} {{ apprenant.lastName }}</span>
+                </td>
+
+                <td>{{ apprenant.email }}</td>
+                <td> {{ apprenant.phone || '-' }}</td>
+                <td>{{ apprenant.createdAt | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <span>{{ apprenant.isActive !== false ? 'Actif' : 'Inactif' }}</span>
+                </td>
+
+                <td>
+                  <button (click)="viewApprenant(apprenant.id)" title="Voir détails">
+                    voir
+                  </button>
+                  <button (click)="deleteApprenant(apprenant.id)" title="Supprimer">
+                    Supprimer
+                  </button>
+
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

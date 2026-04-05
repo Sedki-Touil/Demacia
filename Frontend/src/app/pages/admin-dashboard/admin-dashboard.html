@@ -1,0 +1,279 @@
+<div class="dashboard-container">
+  <app-header></app-header>
+
+
+
+  <div class="main-content">
+    <app-sidebar></app-sidebar>
+    <app-sidebar *ngIf="isSidebarOpen"></app-sidebar>
+
+    <div class="table-wrapper">
+
+      <!-- Header with filters -->
+      <div class="table-header">
+        <div class="header-left">
+          <h2>Employee Management</h2>
+          <span class="total-count">{{ pagination.totalItems }} employees</span>
+        </div>
+
+        <div class="header-right">
+          <div class="filter-group">
+            <!-- Search input with icon -->
+            <div class="search-wrapper">
+              <span class="search-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Search employees..."
+                [(ngModel)]="searchText"
+                (ngModelChange)="onSearchChange()"
+                class="search-input">
+              <button *ngIf="searchText" class="clear-search" (click)="searchText=''; onSearchChange()">×</button>
+            </div>
+
+            <!-- City filter -->
+            <select
+              [(ngModel)]="selectedCity"
+              (ngModelChange)="applyFilters()"
+              class="filter-select">
+              <option value="">All Cities</option>
+              <option *ngFor="let city of uniqueCities" [value]="city">{{ city }}</option>
+            </select>
+
+            <!-- Clear filters button -->
+            <button
+              *ngIf="searchText || selectedCity"
+              class="clear-filters-btn"
+              (click)="clearFilters()">
+              Clear Filters
+            </button>
+          </div>
+
+          <!-- Add button with icon -->
+          <button class="add-btn" (click)="openAdd()">
+            <span class="btn-icon">+</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading indicator -->
+      <div class="loading-overlay" *ngIf="isLoading">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th (click)="sortTable('name')" class="sortable">
+                Name <span class="sort-icon">{{ getSortIcon('name') }}</span>
+              </th>
+              <th (click)="sortTable('adresse')" class="sortable">
+                Address <span class="sort-icon">{{ getSortIcon('adresse') }}</span>
+              </th>
+              <th (click)="sortTable('ville')" class="sortable">
+                City <span class="sort-icon">{{ getSortIcon('ville') }}</span>
+              </th>
+              <th (click)="sortTable('phone')" class="sortable">
+                Phone <span class="sort-icon">{{ getSortIcon('phone') }}</span>
+              </th>
+              <th (click)="sortTable('email')" class="sortable">
+                Email <span class="sort-icon">{{ getSortIcon('email') }}</span>
+              </th>
+              <th>Password</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let emp of filteredData; let i=index" class="employee-row">
+              <td>
+                <div class="employee-name">
+                  <span class="avatar">{{ emp.name.charAt(0) }}</span>
+                  {{ emp.name }}
+                </div>
+              </td>
+              <td>{{ emp.adresse }}</td>
+              <td><span class="city-badge">{{ emp.ville }}</span></td>
+              <td>{{ emp.phone }}</td>
+              <td>{{ emp.email }}</td>
+              <td>
+                <span class="password-dots">••••••••</span>
+              </td>
+              <td class="actions">
+                <button class="icon-btn edit-btn" (click)="openEdit(emp)" title="Edit">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 4H4C2.89543 4 2 4.89543 2 6V20C2 21.1046 2.89543 22 4 22H18C19.1046 22 20 21.1046 20 20V13M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+                </button>
+                <button class="icon-btn delete-btn" (click)="deleteEmployee(emp.id!)" title="Delete">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 7H20M10 11V17M14 11V17M5 7L6 19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19L19 7M9 7V4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V7"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+                </button>
+              </td>
+            </tr>
+
+            <!-- Empty state - only show when no data at all -->
+            <tr *ngIf="originalData.length === 0 && !isLoading">
+              <td colspan="7" class="empty-state">
+                <div class="empty-message">
+                  <span class="empty-icon">📋</span>
+                  <p>No employees yet</p>
+                  <button class="add-btn small" (click)="openAdd()">Add your first employee</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- No results state - when filters return no results but data exists -->
+            <tr *ngIf="originalData.length > 0 && filteredData.length === 0 && !isLoading">
+              <td colspan="7" class="empty-state">
+                <div class="empty-message">
+                  <span class="empty-icon">🔍</span>
+                  <p>No employees match your filters</p>
+                  <button class="clear-filters-btn" (click)="clearFilters()">Clear Filters</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination with info - only show if there are results -->
+      <div class="pagination-wrapper" *ngIf="filteredData.length > 0">
+        <div class="pagination-info">
+          {{ paginationInfo }}
+        </div>
+
+        <div class="pagination">
+          <button
+            class="pagination-btn"
+            (click)="prevPage()"
+            [disabled]="pagination.currentPage === 1">
+            ← Prev
+          </button>
+
+          <div class="page-numbers">
+            <button
+              *ngFor="let page of getPageNumbers()"
+              class="page-btn"
+              [class.active]="page === pagination.currentPage"
+              (click)="goToPage(page)">
+              {{ page }}
+            </button>
+          </div>
+
+          <button
+            class="pagination-btn"
+            (click)="nextPage()"
+            [disabled]="pagination.currentPage === pagination.totalPages">
+            Next →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-data-table
+  [title]="'Employee Management'"
+  [columns]="['name','adresse','ville','phone','email']"
+  (edit)="openEdit($event)"
+  (delete)="deleteEmployee($event.id)"
+  (add)="openAdd()">
+</app-data-table>
+</div>
+
+
+
+<!-- Enhanced Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>{{ editMode ? 'Edit Employee' : 'Add New Employee' }}</h2>
+      <button class="close-btn" (click)="close()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg></button>
+    </div>
+
+    <form (ngSubmit)="save()" #employeeForm="ngForm">
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input
+          [(ngModel)]="form.name"
+          name="name"
+          placeholder="Enter full name"
+          [class.error]="formErrors['name']">
+        <span class="error-message" *ngIf="formErrors['name']">{{ formErrors['name'] }}</span>
+      </div>
+
+      <div class="form-group">
+        <label>Address</label>
+        <input
+          [(ngModel)]="form.adresse"
+          name="adresse"
+          placeholder="Enter address">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>City *</label>
+          <input
+            [(ngModel)]="form.ville"
+            name="ville"
+            placeholder="Enter city">
+        </div>
+
+        <div class="form-group">
+          <label>Phone *</label>
+          <input
+            [(ngModel)]="form.phone"
+            name="phone"
+            placeholder="+216 XX XXX XXX"
+            [class.error]="formErrors['phone']">
+          <span class="error-message" *ngIf="formErrors['phone']">{{ formErrors['phone'] }}</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Email *</label>
+        <input
+          [(ngModel)]="form.email"
+          name="email"
+          type="email"
+          placeholder="employee@company.com"
+          [class.error]="formErrors['email']">
+        <span class="error-message" *ngIf="formErrors['email']">{{ formErrors['email'] }}</span>
+      </div>
+
+      <div class="form-group">
+        <label>Password {{ editMode ? '(leave blank to keep current)' : '*' }}</label>
+        <input
+          [(ngModel)]="form.password"
+          name="password"
+          type="password"
+          placeholder="{{ editMode ? 'Leave blank to keep current' : 'Enter password' }}"
+          [class.error]="formErrors['password']">
+        <span class="error-message" *ngIf="formErrors['password']">{{ formErrors['password'] }}</span>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" (click)="close()">Cancel</button>
+        <button type="submit" class="save-btn" [disabled]="isLoading">
+          <span class="spinner-small" *ngIf="isLoading"></span>
+          {{ editMode ? 'Update' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Optional: Add a small reset button for testing (you can remove this in production) -->
+<div class="dev-tools" *ngIf="false">
+  <button (click)="resetToDefault()">Reset to Default Data</button>
+</div>
