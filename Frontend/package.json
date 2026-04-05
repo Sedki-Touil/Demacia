@@ -23,19 +23,27 @@
   "private": true,
   "packageManager": "npm@11.10.1",
   "dependencies": {
+    "@angular/cdk": "~21.2.2",
     "@angular/common": "^21.1.0",
     "@angular/compiler": "^21.1.0",
     "@angular/core": "^21.1.0",
     "@angular/forms": "^21.1.0",
+    "@angular/material": "~21.2.2",
     "@angular/platform-browser": "^21.1.0",
     "@angular/router": "^21.1.0",
+    "@stomp/stompjs": "^7.3.0",
+    "file-saver": "^2.0.5",
     "rxjs": "~7.8.0",
+    "sockjs-client": "^1.6.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@angular/build": "^21.1.5",
     "@angular/cli": "^21.1.5",
     "@angular/compiler-cli": "^21.1.0",
+    "@angular/material": "^21.2.2",
+    "@types/file-saver": "^2.0.7",
+    "@types/sockjs-client": "^1.5.4",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"

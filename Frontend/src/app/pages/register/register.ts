@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { AuthService } from '../../service/auth';
+import { AuthService } from '../../services/auth';
 import { RouterLink } from '@angular/router';
+import { AuthLeft } from '../../components/auth-left/auth-left';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AuthLeft],
   templateUrl: './register.html',
   styleUrls: ['./register.scss']
 })
@@ -19,7 +20,11 @@ export class RegisterComponent {
     password: '',
     firstName: '',
     lastName: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    phone: '',
+    city: '',
+    gender: '',
+    selectedOption: ''
   };
 
   constructor(

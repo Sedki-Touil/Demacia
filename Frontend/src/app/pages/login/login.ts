@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../service/auth';   // ← .service ajouté (souvent la cause)
+import { AuthService } from '../../services/auth';   // ← .service ajouté (souvent la cause)
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
+import { AuthLeft } from '../../components/auth-left/auth-left';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AuthLeft],
   templateUrl: './login.html',
   styleUrls: ['./login.scss']
 })

@@ -1,0 +1,90 @@
+<div>
+  <div>
+    <h2>Gestion des prérequis</h2>
+    <p>Définissez les prérequis nécessaires pour chaque formation</p>
+  </div>
+
+  <div>
+    <div>
+      <div>
+        <h3>Mes formations</h3>
+        <span>{{ formations.length }} formation(s)</span>
+      </div>
+
+      <div>
+        @if (formations.length === 0) {
+          <div>
+            <p>Aucune formation assignée</p>
+          </div>
+        } @else {
+          @for (formation of formations; track formation.id) {
+            <div>
+              <h4>{{ formation.titre }}</h4>
+              <p>{{ formation.description | slice:0:80 }} ...</p>
+            </div>
+
+            <div>
+              <div>
+                <span>{{ formation.prerequis || 0 }}</span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <div>
+      @if (!selectedFormation) {
+        <div>
+          <div>
+            <h3>Aucun formation séletionnée</h3>
+            <p>Sélectionnez une formation pour gérer ses prérequis</p>
+          </div>
+        </div>
+      } @else {
+        <div>
+          <h3>Prérequis pour : {{ selectedFormation.titre }}</h3>
+          <button (click)="showAddForm = !showAddForm">Ajouter un prérequis</button>
+        </div>
+      }
+
+      @if (showAddForm) {
+        <div>
+          <div>
+            <label for="prerequis">Nouveau prérequis</label>
+            <input type="text" id="prerequis" [(ngModel)] = "newPrerequis" (keyup.enter)="addPrerequis()">
+          </div>
+
+          <div>
+            <button (click)="addPrerequis()" [disabled]="!newPrerequis.trim()">Ajouter</button>
+            <button (click)="showAddForm = false ; newPrerequis = ''">Annuler</button>
+          </div>
+        </div>
+      }
+
+      <div>
+        <div>
+          @if (prerequis.length === 0) {
+            <div>
+              <p>Aucun prérequis défini pour cette formation</p>
+              <button (click)="showAddForm = true">Ajouter un prérequis</button>
+            </div>
+          } @else {
+            <ul>
+              @for (prereq of prerequis; track prereq) {
+                <li>
+                  <span>
+                    <span>•</span>
+                    {{prereq}}
+                  </span>
+
+                  <button (click)="deletePrerequis(prereq)" title="Supprimer ce prérequis">Supprimer</button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
